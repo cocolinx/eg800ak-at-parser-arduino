@@ -1,4 +1,4 @@
-# CocoLinx EG800AK AT command parser Library
+# CocoLinx EG800AK AT command parser Library for Arduino
 
 ## Description
 

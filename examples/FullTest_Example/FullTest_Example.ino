@@ -2,7 +2,7 @@
 //    FILE: FullTest_Example.ino
 //  AUTHOR: CocoLinx
 // PURPOSE: test all functions in library
-//     URL: https://github.com/cocolinx/eg800ak-at-parser
+//     URL: https://github.com/cocolinx/eg800ak-at-parser-arduino
 
 #include <CocoLinx_EG800AK_v1.h>
 
