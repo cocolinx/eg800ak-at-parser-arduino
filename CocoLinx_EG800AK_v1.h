@@ -210,9 +210,6 @@ class CocoLinx_EG800AK {
         int32_t find_prefix_token(const char *str, int32_t start_idx = 0);
         int32_t get_at_error_ack();
         
-        int32_t char_to_hex(char c, uint8_t *x);
-        int32_t hex_to_char(uint8_t x, char *c);
-        int32_t hex_to_bin(const char *hex, size_t hexlen, uint8_t *buf, size_t buflen);
         int32_t bin_to_hex(const uint8_t *buf, int32_t buflen, char *hex, int32_t hexlen);
 
         static bool char_to_int32(const char *str, int32_t len, int32_t *resp);

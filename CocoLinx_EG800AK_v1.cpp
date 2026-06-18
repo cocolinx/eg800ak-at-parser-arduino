@@ -1019,7 +1019,9 @@ int32_t CocoLinx_EG800AK::cx_send_hex(int32_t connect_id, const uint8_t *data, i
     char cmd[600];
     char data_str[512];
 
-    bin_to_hex(data, send_length, data_str, 512);
+    int32_t ret = bin_to_hex(data, send_length, data_str, 512);
+    if(ret == 0) return -(ACK_ERR_ARG);
+
     snprintf(cmd, 600, "AT+QISENDEX=%d,\"%s\"", connect_id, data_str);
 
     int32_t ack = transfer_pkt(cmd, 16, 5000);
@@ -1889,80 +1891,29 @@ int32_t CocoLinx_EG800AK::cx_recv(int32_t connect_id, char *data, int32_t max_si
     return cx_recv(connect_id, (uint8_t *)data, max_size);
 }
 
-int32_t CocoLinx_EG800AK::char_to_hex(char c, uint8_t *x)
-{
-	if ((c >= '0') && (c <= '9')) {
-		*x = c - '0';
-	} else if ((c >= 'a') && (c <= 'f')) {
-		*x = c - 'a' + 10;
-	} else if ((c >= 'A') && (c <= 'F')) {
-		*x = c - 'A' + 10;
-	} else {
-		return -(ACK_ERR_PARSE);
-	}
-
-	return 0;
-}
-
-int32_t CocoLinx_EG800AK::hex_to_char(uint8_t x, char *c)
-{
-	if (x <= 9) {
-		*c = x + (char)'0';
-	} else  if (x <= 15) {
-		*c = x - 10 + (char)'a';
-	} else {
-		return -(ACK_ERR_PARSE);
-	}
-
-	return 0;
-}
-
-// return The length of the binary array, or 0 if an error occurred.
-int32_t CocoLinx_EG800AK::hex_to_bin(const char *hex, size_t hexlen, uint8_t *buf, size_t buflen)
-{
-	uint8_t dec;
-
-	if (buflen < (hexlen / 2 + hexlen % 2)) {
-		return 0;
-	}
-
-	/* if hexlen is uneven, insert leading zero nibble */
-	if ((hexlen % 2) != 0) {
-		if (char_to_hex(hex[0], &dec) < 0) {
-			return 0;
-		}
-		buf[0] = dec;
-		hex++;
-		buf++;
-	}
-
-	/* regular hex conversion */
-	for (size_t i = 0; i < (hexlen / 2); i++) {
-		if (char_to_hex(hex[2 * i], &dec) < 0) {
-			return 0;
-		}
-		buf[i] = dec << 4;
-
-		if (char_to_hex(hex[2 * i + 1], &dec) < 0) {
-			return 0;
-		}
-		buf[i] += dec;
-	}
-
-	return hexlen / 2 + hexlen % 2;
-}
-
-// return The length of the converted string, or 0 if an error occurred.
+/* Return The length of the converted string, or 0 if an error occurred. */
 int32_t CocoLinx_EG800AK::bin_to_hex(const uint8_t *buf, int32_t buflen, char *hex, int32_t hexlen)
 {
+    static const char hex_table[] = "0123456789ABCDEF";
+
+    if(buf == NULL) return 0;
+    if(hex == NULL) return 0;
+    if(buflen < 0) return 0;
+    if(hexlen <= 0) return 0;
+
 	if (hexlen < ((buflen * 2) + 1)) {
 		return 0;
 	}
 
-	for (int32_t i = 0; i < buflen; i++) {
-		hex_to_char(buf[i] >> 4, &hex[2 * i]);
-		hex_to_char(buf[i] & 0xf, &hex[2 * i + 1U]);
-	}
+    uint8_t value;
+
+    for(int32_t i = 0; i < buflen; i++) 
+    {
+        value = buf[i];
+
+        hex[i * 2]     = hex_table[(value >> 4) & 0x0F];
+        hex[i * 2 + 1] = hex_table[value & 0x0F];
+    }
 
 	hex[2 * buflen] = '\0';
 	return 2 * buflen;
