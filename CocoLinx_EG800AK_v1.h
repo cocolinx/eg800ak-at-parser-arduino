@@ -84,7 +84,7 @@ class CocoLinx_EG800AK {
         int32_t cx_mqtt_sub(int32_t client_idx, int32_t msg_id, const char *topic, int32_t qos);
         int32_t cx_mqtt_unsub(int32_t client_idx, int32_t msg_id, const char *topic);
         int32_t cx_mqtt_pub(int32_t client_idx, int32_t msg_id, int32_t qos, int32_t retain, const char *topic, const uint8_t *msg, int32_t length);
-        int32_t cx_mqtt_pub_str(int32_t client_idx, int32_t msg_id, int32_t qos, int32_t retain, const char *topic, const char *msg, int32_t length);
+        int32_t cx_mqtt_pub(int32_t client_idx, int32_t msg_id, int32_t qos, int32_t retain, const char *topic, const char *msg, int32_t length);
 
         /* Socket AT commands */
         int32_t cx_socket_cfg(const char *config_key, int32_t *params, int32_t param_count);
@@ -97,7 +97,7 @@ class CocoLinx_EG800AK {
         int32_t cx_socket(int32_t context_id, int32_t connect_id, const char *service_type, const char *ip_address, int32_t remote_port);
         int32_t cx_close(int32_t connect_id);
         int32_t cx_send(int32_t connect_id, const uint8_t *data, int32_t send_length);
-        int32_t cx_send_str(int32_t connect_id, const char *data, int32_t send_length);
+        int32_t cx_send(int32_t connect_id, const char *data, int32_t send_length);
         int32_t cx_send_hex(int32_t connect_id, const uint8_t *data, int32_t send_length);
 
         /**************************************** AT read command ****************************************/
@@ -138,14 +138,14 @@ class CocoLinx_EG800AK {
         int32_t cx_get_mqtt_con(int32_t *client_idx, int32_t *state);
         int32_t cx_mqtt_recv_info(int32_t *client_idx, int32_t *store_status, int32_t max_size);
         int32_t cx_mqtt_recv(int32_t client_idx, int32_t recv_id, char *topic, int32_t topic_size, uint8_t *data, int32_t data_size);
-        int32_t cx_mqtt_recv_str(int32_t client_idx, int32_t recv_id, char *topic, int32_t topic_size, char *data, int32_t data_size);
+        int32_t cx_mqtt_recv(int32_t client_idx, int32_t recv_id, char *topic, int32_t topic_size, char *data, int32_t data_size);
 
         /* Socket AT commands */
         int32_t cx_get_context(int32_t context_id, int32_t *context_type, char *apn, int32_t max_size);
         int32_t cx_get_pdp_state(int32_t context_id, int32_t *context_state, int32_t *context_type);
         int32_t cx_get_socket(int32_t connect_id, char *service_type, int32_t service_type_size, char *ip_address, int32_t ip_address_size, int32_t *remote_port);
         int32_t cx_recv(int32_t connect_id, uint8_t *data, int32_t max_size);
-        int32_t cx_recv_str(int32_t connect_id, char *data, int32_t max_size);
+        int32_t cx_recv(int32_t connect_id, char *data, int32_t max_size);
 
         private:
         #define RESPONSE_DATA_SIZE_MAX 512
@@ -209,7 +209,6 @@ class CocoLinx_EG800AK {
         static bool is_quote(const char *str);
         int32_t find_prefix_token(const char *str, int32_t start_idx = 0);
         int32_t get_at_error_ack();
-        bool is_empty_token(uint8_t token_index);
         
         int32_t char_to_hex(char c, uint8_t *x);
         int32_t hex_to_char(uint8_t x, char *c);

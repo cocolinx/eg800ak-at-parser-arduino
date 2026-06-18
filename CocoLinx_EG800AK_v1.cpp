@@ -155,11 +155,6 @@ int32_t CocoLinx_EG800AK::find_prefix_token(const char *str, int32_t start_idx)
     return -1;
 }
 
-bool CocoLinx_EG800AK::is_empty_token(uint8_t token_index)
-{
-    return (_parser.tokens[token_index].len == 0) ? true : false;
-}
-
 // send -> recv
 // return ack code(negative sign)
 int32_t CocoLinx_EG800AK::transfer_pkt(const uint8_t *cmd, int32_t cmd_size, int32_t max_tokens, uint32_t timeout_ms)
@@ -875,7 +870,7 @@ int32_t CocoLinx_EG800AK::cx_mqtt_pub(int32_t client_idx, int32_t msg_id, int32_
     return ACK_OKAY;
 }
 
-int32_t CocoLinx_EG800AK::cx_mqtt_pub_str(int32_t client_idx, int32_t msg_id, int32_t qos, int32_t retain, const char *topic, const char *msg, int32_t length)
+int32_t CocoLinx_EG800AK::cx_mqtt_pub(int32_t client_idx, int32_t msg_id, int32_t qos, int32_t retain, const char *topic, const char *msg, int32_t length)
 {
     return cx_mqtt_pub(client_idx, msg_id, qos, retain, topic, (const uint8_t *)msg, length);
 }
@@ -1014,7 +1009,7 @@ int32_t CocoLinx_EG800AK::cx_send(int32_t connect_id, const uint8_t *data, int32
     return ACK_OKAY;
 }
 
-int32_t CocoLinx_EG800AK::cx_send_str(int32_t connect_id, const char *data, int32_t send_length)
+int32_t CocoLinx_EG800AK::cx_send(int32_t connect_id, const char *data, int32_t send_length)
 {
     return cx_send(connect_id, (const uint8_t *)data, send_length);
 }
@@ -1729,7 +1724,7 @@ int32_t CocoLinx_EG800AK::cx_mqtt_recv(int32_t client_idx, int32_t recv_id, char
     return val;
 }
 
-int32_t CocoLinx_EG800AK::cx_mqtt_recv_str(int32_t client_idx, int32_t recv_id, char *topic, int32_t topic_size, char *data, int32_t data_size)
+int32_t CocoLinx_EG800AK::cx_mqtt_recv(int32_t client_idx, int32_t recv_id, char *topic, int32_t topic_size, char *data, int32_t data_size)
 {
     return cx_mqtt_recv(client_idx, recv_id, topic, topic_size, (uint8_t *)data, data_size);
 }
@@ -1774,7 +1769,6 @@ int32_t CocoLinx_EG800AK::cx_get_pdp_state(int32_t context_id, int32_t *context_
     int32_t val;
     char cmd[16];
     bool ret;
-    bool is_found = false; 
 
     strcpy(cmd, "AT+QIACT?");
 
@@ -1784,10 +1778,10 @@ int32_t CocoLinx_EG800AK::cx_get_pdp_state(int32_t context_id, int32_t *context_
     if(_parser.resp_code == AT_OK && _parser.count < 1) return ACK_NO_PDP;
 
     if(_parser.resp_code != AT_OK) return -(get_at_error_ack());
-    if(_parser.count < 5) return -(ACK_ERR_PARSE);
+    if(_parser.count < 4) return -(ACK_ERR_PARSE);
 
     int32_t index = find_prefix_token("+QIACT");
-    if(index < 0 || index + 4 >= _parser.count) return -(ACK_ERR_PARSE);
+    if(index < 0 || index + 3 >= _parser.count) return -(ACK_ERR_PARSE);
 
     while(index + 3 < _parser.count)
     {
@@ -1796,7 +1790,8 @@ int32_t CocoLinx_EG800AK::cx_get_pdp_state(int32_t context_id, int32_t *context_
     
         if(val != context_id) 
         {
-            index += 5;
+            index = find_prefix_token("+QIACT", index + 3);
+            if(index < 0 || index + 3 >= _parser.count) return -(ACK_ERR_ARG);
             continue;
         }
     
@@ -1810,14 +1805,10 @@ int32_t CocoLinx_EG800AK::cx_get_pdp_state(int32_t context_id, int32_t *context_
     
         if(context_type != nullptr) *context_type = val;
 
-        is_found = true;
-
-        break;
+        return ACK_OKAY;
     }
 
-    if(!is_found) return -(ACK_ERR_ARG);
-
-    return ACK_OKAY;
+    return -(ACK_ERR_ARG);
 }
 
 int32_t CocoLinx_EG800AK::cx_get_socket(int32_t connect_id, char *service_type, int32_t service_type_size, char *ip_address, int32_t ip_address_size, int32_t *remote_port)
@@ -1893,7 +1884,7 @@ int32_t CocoLinx_EG800AK::cx_recv(int32_t connect_id, uint8_t *data, int32_t max
     return val;
 }
 
-int32_t CocoLinx_EG800AK::cx_recv_str(int32_t connect_id, char *data, int32_t max_size)
+int32_t CocoLinx_EG800AK::cx_recv(int32_t connect_id, char *data, int32_t max_size)
 {
     return cx_recv(connect_id, (uint8_t *)data, max_size);
 }
