@@ -246,7 +246,7 @@ int32_t CocoLinx_EG800AK::transfer_pkt(const uint8_t *cmd, int32_t cmd_size, int
 
 int32_t CocoLinx_EG800AK::transfer_pkt(const char *cmd, int32_t max_tokens, uint32_t timeout_ms)
 {
-    transfer_pkt((uint8_t *)cmd, strlen(cmd), max_tokens, timeout_ms);
+    return transfer_pkt((uint8_t *)cmd, strlen(cmd), max_tokens, timeout_ms);
 }
 
 int32_t CocoLinx_EG800AK::transfer_pkt_data(const char *cmd, int32_t cmd_size, const uint8_t *data, int32_t data_size, uint32_t timeout_ms)
