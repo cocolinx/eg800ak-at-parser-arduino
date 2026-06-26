@@ -42,6 +42,17 @@ bool CocoLinx_EG800AK::begin()
     at_parser_init();
 
     memset(_pktbuf, 0, sizeof(_pktbuf));
+
+    pinMode(MODEM_PWR_PIN, OUTPUT);
+
+    digitalWrite(MODEM_PWR_PIN, LOW);
+    delay(100);
+
+    digitalWrite(MODEM_PWR_PIN, HIGH);
+    delay(1500);
+
+    digitalWrite(MODEM_PWR_PIN, LOW);
+    delay(100);
   
     uint32_t start_ms = get_ms();
 

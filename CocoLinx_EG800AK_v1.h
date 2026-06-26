@@ -189,6 +189,7 @@ class CocoLinx_EG800AK {
         const uint8_t HW_TX_PIN = 1;
         const uint8_t SW_RX_PIN = 8;
         const uint8_t SW_TX_PIN = 7;
+        const uint8_t MODEM_PWR_PIN = 4;
         
         const uint32_t BAUDRATE = 115200;   
 
