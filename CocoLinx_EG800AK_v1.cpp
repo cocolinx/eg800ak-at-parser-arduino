@@ -46,13 +46,13 @@ bool CocoLinx_EG800AK::begin()
     pinMode(MODEM_PWR_PIN, OUTPUT);
 
     digitalWrite(MODEM_PWR_PIN, LOW);
-    sleep_ms(100);
+    delay(100);
 
     digitalWrite(MODEM_PWR_PIN, HIGH);
-    sleep_ms(1500);
+    delay(1500);
 
     digitalWrite(MODEM_PWR_PIN, LOW);
-    sleep_ms(100);
+    delay(100);
   
     uint32_t start_ms = get_ms();
 
@@ -1464,7 +1464,7 @@ int32_t CocoLinx_EG800AK::get_cgatt(int32_t *state)
     return ACK_OKAY;
 }
 
-int32_t CocoLinx_EG800AK::get_cgdcont(int32_t *cid, char *pdp_type, char *apn, int32_t pdp_max_size, int32_t apn_max_size)
+int32_t CocoLinx_EG800AK::get_cgdcont(int32_t cid, char *pdp_type, char *apn, int32_t pdp_max_size, int32_t apn_max_size)
 {
     int32_t val;
     char cmd[16];
@@ -1481,33 +1481,43 @@ int32_t CocoLinx_EG800AK::get_cgdcont(int32_t *cid, char *pdp_type, char *apn, i
     int32_t index = find_prefix_token("+CGDCONT");
     if(index < 0 || index + 3 >= _parser.count) return -(ACK_ERR_PARSE);
 
-    ret = char_to_int32(&_parser.tokens[index + 1], &val);
-    if(!ret) return -(ACK_ERR_PARSE);
-
-    if(cid != nullptr) *cid = val;
-
-    if(pdp_type != nullptr)
+    while(index + 3 < _parser.count)
     {
-        int32_t len = _parser.tokens[index + 2].len;
-        if(pdp_max_size <= len) return -(ACK_ERR_ARG);
-        trim_quote(&_parser.tokens[index + 2].buf, &len);
-        memcpy(pdp_type, _parser.tokens[index + 2].buf, len);
-        pdp_type[len] = '\0';
+        ret = char_to_int32(&_parser.tokens[index + 1], &val);
+        if(!ret) return -(ACK_ERR_PARSE);
+    
+        if(val != cid) 
+        {
+            index = find_prefix_token("+CGDCONT", index + 3);
+            if(index < 0 || index + 3 >= _parser.count) return -(ACK_ERR_ARG);
+            continue;
+        }
+
+        if(pdp_type != nullptr)
+        {
+            int32_t len = _parser.tokens[index + 2].len;
+            if(pdp_max_size <= len) return -(ACK_ERR_ARG);
+            trim_quote(&_parser.tokens[index + 2].buf, &len);
+            memcpy(pdp_type, _parser.tokens[index + 2].buf, len);
+            pdp_type[len] = '\0';
+        }
+
+        if(apn != nullptr)
+        {
+            int32_t len = _parser.tokens[index + 3].len;
+            if(apn_max_size <= len) return -(ACK_ERR_ARG);
+            trim_quote(&_parser.tokens[index + 3].buf, &len);
+            memcpy(apn, _parser.tokens[index + 3].buf, len);
+            apn[len] = '\0';
+        }
+
+        return ACK_OKAY;
     }
 
-    if(apn != nullptr)
-    {
-        int32_t len = _parser.tokens[index + 3].len;
-        if(apn_max_size <= len) return -(ACK_ERR_ARG);
-        trim_quote(&_parser.tokens[index + 3].buf, &len);
-        memcpy(apn, _parser.tokens[index + 3].buf, len);
-        apn[len] = '\0';
-    }
-
-    return ACK_OKAY;
+    return -(ACK_ERR_ARG);
 }
 
-int32_t CocoLinx_EG800AK::get_cgact(int32_t *cid, int32_t *state)
+int32_t CocoLinx_EG800AK::get_cgact(int32_t cid, int32_t *state)
 {
     int32_t val;
     char cmd[16];
@@ -1524,17 +1534,27 @@ int32_t CocoLinx_EG800AK::get_cgact(int32_t *cid, int32_t *state)
     int32_t index = find_prefix_token("+CGACT");
     if(index < 0 || index + 2 >= _parser.count) return -(ACK_ERR_PARSE);
 
-    ret = char_to_int32(&_parser.tokens[index + 1], &val);
-    if(!ret) return -(ACK_ERR_PARSE);
+    while(index + 2 < _parser.count)
+    {
+        ret = char_to_int32(&_parser.tokens[index + 1], &val);
+        if(!ret) return -(ACK_ERR_PARSE);
+    
+        if(val != cid) 
+        {
+            index = find_prefix_token("+CGACT", index + 2);
+            if(index < 0 || index + 2 >= _parser.count) return -(ACK_ERR_ARG);
+            continue;
+        }
 
-    if(cid != nullptr) *cid = val;
+        ret = char_to_int32(&_parser.tokens[index + 2], &val);
+        if(!ret) return -(ACK_ERR_PARSE);
 
-    ret = char_to_int32(&_parser.tokens[index + 2], &val);
-    if(!ret) return -(ACK_ERR_PARSE);
+        if(state != nullptr) *state = val;
 
-    if(state != nullptr) *state = val;
+        return ACK_OKAY;
+    }
 
-    return ACK_OKAY;
+    return -(ACK_ERR_ARG);
 }
 
 int32_t CocoLinx_EG800AK::get_cereg(int32_t *stat)

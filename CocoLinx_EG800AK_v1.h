@@ -126,8 +126,8 @@ class CocoLinx_EG800AK {
 
         /* Packet Domain Commands */
         int32_t get_cgatt(int32_t *state);
-        int32_t get_cgdcont(int32_t *cid, char *pdp_type, char *apn, int32_t pdp_max_size, int32_t apn_max_size);
-        int32_t get_cgact(int32_t *cid, int32_t *state);
+        int32_t get_cgdcont(int32_t cid, char *pdp_type, char *apn, int32_t pdp_max_size, int32_t apn_max_size);
+        int32_t get_cgact(int32_t cid, int32_t *state);
         int32_t get_cereg(int32_t *stat);
 
         /* Hardware Related Commands */
