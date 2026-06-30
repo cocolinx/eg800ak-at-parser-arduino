@@ -98,7 +98,6 @@ void setup() {
   {
     Serial.print("error: ");
     Serial.println(ret);
-    return false;
   }
   else if(ret == CocoLinx_EG800AK::ACK_NO_PDP)
   {
@@ -123,7 +122,6 @@ void setup() {
     {
       Serial.print("error: ");
       Serial.println(ret);
-      return false;
     }
     else Serial.println("okay");
   }
@@ -137,7 +135,6 @@ void setup() {
   {
     Serial.print("error: ");
     Serial.println(ret);
-    return false;
   }
   else Serial.println("okay");
   
@@ -155,7 +152,6 @@ void loop() {
   {
     Serial.print("error: ");
     Serial.println(ret);
-    return false;
   }
   else 
   {
@@ -172,7 +168,6 @@ void loop() {
   {
     Serial.print("error: ");
     Serial.println(rxcnt);
-    return false;
   }
   else
   {
@@ -190,8 +185,9 @@ void loop() {
     {
       Serial.print("error: ");
       Serial.println(ret);
-      return false;
     }
     else Serial.println("okay...");
   }
+  
+  delay(10000);
 }
