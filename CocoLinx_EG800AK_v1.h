@@ -152,13 +152,13 @@ class CocoLinx_EG800AK {
         #define AT_TX_DATA_SIZE_MAX    512
         #define AT_TX_BYTES_SIZE_MAX   256
         #define TOKEN_SIZE_MAX         32
-        #define CR '\r'
-        #define LF '\n'
-        #define COMMA ','
-        #define COLON ':'
-        #define QUOTE '"'
-        #define SPACE ' '
-        #define NULL_TERMINATOR '\0'
+        #define AT_CR '\r'
+        #define AT_LF '\n'
+        #define AT_COMMA ','
+        #define AT_COLON ':'
+        #define AT_QUOTE '"'
+        #define AT_SPACE ' '
+        #define AT_NULL_TERMINATOR '\0'
 
         typedef enum {
             AT_OK = 0,

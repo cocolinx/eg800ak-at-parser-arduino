@@ -78,14 +78,14 @@ void CocoLinx_EG800AK::at_parser_init()
 
 void CocoLinx_EG800AK::trim_cr_lf(const char **str)
 {
-	while ((*str)[0] == CR || (*str)[0] == LF) {
+	while ((*str)[0] == AT_CR || (*str)[0] == AT_LF) {
 		(*str)++;
 	}
 }
 
 void CocoLinx_EG800AK::trim_left_space(const char **str)
 {
-    while ((*str)[0] == SPACE) {
+    while ((*str)[0] == AT_SPACE) {
         (*str)++;
     }
 }
@@ -96,12 +96,12 @@ void CocoLinx_EG800AK::trim_quote(const char **str, int32_t *len)
     if (*str == nullptr) return;
     if (*len < 2) return;
 
-    if ((*str)[0] == QUOTE) {
+    if ((*str)[0] == AT_QUOTE) {
         (*str)++;
         (*len)--;
     }
 
-    if ((*str)[*len - 1] == QUOTE) {
+    if ((*str)[*len - 1] == AT_QUOTE) {
         (*len)--;
     }
 }
@@ -110,7 +110,7 @@ bool CocoLinx_EG800AK::is_resp(const char *str)
 {
     trim_cr_lf(&str);
 
-    if(str[0] == NULL_TERMINATOR) return false;
+    if(str[0] == AT_NULL_TERMINATOR) return false;
 
     if (strncmp(str, "OK\r\n", 4) == 0) {
         return true;
@@ -134,22 +134,22 @@ bool CocoLinx_EG800AK::is_resp(const char *str)
 
 bool CocoLinx_EG800AK::is_end_response(const char *str)
 {
-    return str[0] == CR && str[1] == LF && str[2] == NULL_TERMINATOR;
+    return str[0] == AT_CR && str[1] == AT_LF && str[2] == AT_NULL_TERMINATOR;
 }
 
 bool CocoLinx_EG800AK::is_end_line(const char *str)
 {
-	return str[0] == CR && str[1] == LF;
+	return str[0] == AT_CR && str[1] == AT_LF;
 }
 
 bool CocoLinx_EG800AK::is_colon_or_comma(const char *str)
 {
-    return str[0] == COLON || str[0] == COMMA;
+    return str[0] == AT_COLON || str[0] == AT_COMMA;
 }
 
 bool CocoLinx_EG800AK::is_quote(const char *str)
 {
-    return str[0] == QUOTE;
+    return str[0] == AT_QUOTE;
 }
 
 int32_t CocoLinx_EG800AK::find_prefix_token(const char *str, int32_t start_idx)
@@ -202,7 +202,7 @@ int32_t CocoLinx_EG800AK::transfer_pkt(const uint8_t *cmd, int32_t cmd_size, int
 
         if(rxcnt >= RESPONSE_DATA_SIZE_MAX) return -(ACK_ERR_RESP_OVERFLOW);
 
-        if(_pktbuf[rxcnt-1] == LF)
+        if(_pktbuf[rxcnt-1] == AT_LF)
         {
             if(rxcnt >= 6)
                 if(strncmp(&_pktbuf[rxcnt-6], "\r\nOK\r\n", 6) == 0) 
@@ -220,27 +220,30 @@ int32_t CocoLinx_EG800AK::transfer_pkt(const uint8_t *cmd, int32_t cmd_size, int
                     rxdone = true;
                     break;
                 }
-            if(rxcnt >= 13) 
+            if(rxcnt >= 11) 
             {
                 idx = 3;
                 while(idx <= rxcnt)
                 {
-                    if(_pktbuf[rxcnt-idx] == LF) break;
+                    if(_pktbuf[rxcnt-idx] == AT_LF) break;
                     if(_pktbuf[rxcnt-idx] == '+') 
                     {
-                        if(strncmp(&_pktbuf[rxcnt-idx], "\r\n+CME ERROR:", 13) == 0) 
+                        if(idx >= 11)
                         {
-                           _pktbuf[rxcnt] = '\0';
-                            _parser.resp_code = AT_CME_ERROR;
-                            rxdone = true;
-                            break;
-                        }
-                        if(strncmp(&_pktbuf[rxcnt-idx], "\r\n+CMS ERROR:", 13) == 0)
-                        {
+                            if(strncmp(&_pktbuf[rxcnt-idx], "+CME ERROR:", 11) == 0) 
+                            {
                             _pktbuf[rxcnt] = '\0';
-                            _parser.resp_code = AT_CMS_ERROR;
-                            rxdone = true;
-                            break;
+                                _parser.resp_code = AT_CME_ERROR;
+                                rxdone = true;
+                                break;
+                            }
+                            if(strncmp(&_pktbuf[rxcnt-idx], "+CMS ERROR:", 11) == 0)
+                            {
+                                _pktbuf[rxcnt] = '\0';
+                                _parser.resp_code = AT_CMS_ERROR;
+                                rxdone = true;
+                                break;
+                            }
                         }
                     }
                     idx++;
@@ -296,7 +299,7 @@ int32_t CocoLinx_EG800AK::transfer_pkt_data(const char *cmd, int32_t cmd_size, c
 
         if(rxcnt >= RESPONSE_DATA_SIZE_MAX) return -(ACK_ERR_RESP_OVERFLOW);
 
-        if(_pktbuf[rxcnt-1] == LF)
+        if(_pktbuf[rxcnt-1] == AT_LF)
         {
             if(rxcnt >= 6)
             {
@@ -370,7 +373,7 @@ int32_t CocoLinx_EG800AK::at_pkt_parser(int32_t max_tokens, const uint8_t *cmd, 
         }
     }
 
-    while(*cursor != NULL_TERMINATOR)
+    while(*cursor != AT_NULL_TERMINATOR)
     {
         token_len = 0;
 
