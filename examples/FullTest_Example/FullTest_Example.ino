@@ -554,7 +554,7 @@ bool sample_mqtt()
   else Serial.println("okay");
 
   Serial.print("mqtt server open...");
-  ret = test.cx_mqtt_open(0, "broker.emqx.io", 1883);
+  ret = test.cx_mqtt_open(0, "echo.cocolinx.com", 1883);
   if(ret < 0)
   {
     Serial.print("error: ");
